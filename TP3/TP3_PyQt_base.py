@@ -1,7 +1,7 @@
 import sys
-from PyQt5.QtWidgets import QMainWindow, QApplication, QAction, QStatusBar, QFileDialog, QColorDialog
-from PyQt5.QtGui import QPainter, QColor
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QMainWindow, QApplication, QAction, QStatusBar, QFileDialog, QColorDialog, QStyle
+from PyQt5.QtGui import QPainter, QColor, QIcon, QPixmap
+from PyQt5.QtCore import Qt, qrand
 from datetime import datetime
 import random
 import pickle
@@ -11,9 +11,9 @@ class myHisto:
 
     def __init__(self):
         print('Méthode __init__()  de la classe myHisto')
-        self.m_list = [0] * 10  # 10 bins par défaut
-        self.m_size = 10        # Taille fixe de l'histogramme
-        self.m_max = 99        # Valeur maximale des bins
+        self.m_list = [0] * 10
+        self.m_size = 10
+        self.m_max = 99
         self.color = QColor(Qt.blue)  # Couleur des barres
 
     def set_random_values(self):
@@ -29,8 +29,9 @@ class MyMainWindow(QMainWindow):
         super().__init__(parent)
 
         # Attributs de la fenêtre principale
+        self.display_mode = 'bar'
         self.setGeometry(300, 300, 600, 450)
-        self.titleInfo = "VOTRE_NOM"
+        self.titleInfo = "MUDET"
         self.titleMainWindow = self.titleInfo + datetime.now().strftime("  %H:%M:%S") + ' | Res: ' + str(self.width()) + 'x' + str(self.height())
         self.setWindowTitle(self.titleMainWindow)
 
@@ -41,6 +42,11 @@ class MyMainWindow(QMainWindow):
 
         # Création d'une instance de la classe myHisto
         self.mHisto = myHisto()
+        self.setAcceptDrops(True)
+
+        pixmap = QPixmap(16, 16)
+        pixmap.fill(self.mHisto.color)
+        self.colorIcon = QIcon(pixmap)
 
         self.createActions()
         self.createMenus()
@@ -48,6 +54,7 @@ class MyMainWindow(QMainWindow):
     def resizeEvent(self, event):
         self.titleMainWindow = self.titleInfo + datetime.now().strftime("  %H:%M:%S") + '| Res: ' + str(self.width()) + 'x' + str(self.height())
         self.setWindowTitle(self.titleMainWindow)
+        self.update()
 
     def createActions(self):
         """ Créer ici les actions d'item de menu ainsi que connexions signal/slot, à compléter"""
@@ -71,6 +78,14 @@ class MyMainWindow(QMainWindow):
 
         self.colorAct = QAction("&Color", self)
         self.colorAct.triggered.connect(self.changeColor)
+        self.colorAct.setIcon(QIcon(self.colorIcon))
+
+        self.barAct = QAction("&Bar", self)
+        self.barAct.triggered.connect(self.displayBar)
+
+        self.pieAct = QAction("&Pie", self)
+        self.pieAct.triggered.connect(self.displayPie)
+
 
     def createMenus(self):
         """ Créer ici les menu et les items de menu"""
@@ -85,20 +100,56 @@ class MyMainWindow(QMainWindow):
         displayMenu.addAction(self.clearAct)
         displayMenu.addAction(self.colorAct)
 
+        drawMenu = self.menuBar().addMenu("&Draw")
+        drawMenu.addAction(self.barAct)
+        drawMenu.addAction(self.pieAct)
+
+
+    def displayBar(self):
+        self.display_mode = "bar"
+        self.setGeometry(300, 300, 600, 450)
+        self.update()
+
+    def displayPie(self):
+        self.display_mode = "pie"
+        self.setGeometry(300, 300, 500, 500)
+        self.update()
+
     def paintEvent(self, event):
         qp = QPainter()
         qp.begin(self)
-        self.drawHistogram(qp)
+
+        if self.display_mode == "bar":
+            self.drawHistogram(qp)
+
+        elif self.display_mode == "pie":
+            self.drawPie(qp)
+
         qp.end()
+
+    def drawPie(self, qp):
+
+        total = self.mHisto.total()
+        if total == 0:
+            return
+
+        rect = self.rect().adjusted(50, 50, -50, -50)
+        start_angle = 0
+
+        for value in self.mHisto.m_list:
+            angle = round(value / total * 360)
+            qp.setBrush(QColor(qrand()%256, qrand()%256, qrand()%256))
+            qp.drawPie(rect, start_angle * 16, angle * 16)
+            start_angle += angle
 
     def drawHistogram(self, qp):
         qp.setBrush(self.mHisto.color)
         qp.setPen(Qt.black)
 
-        bar_width = self.width() // len(self.mHisto.m_list)
+        bar_width = self.width() / len(self.mHisto.m_list)
         for i, value in enumerate(self.mHisto.m_list):
-            bar_height = int((value / self.mHisto.m_max) * self.height())
-            qp.drawRect(i * bar_width, self.height() - bar_height, bar_width - 2, bar_height)
+            bar_height = (value / self.mHisto.m_max) * (self.height() - 20)
+            qp.drawRect(int(i * bar_width), int(self.height() - bar_height - 20), int(bar_width - 2),int(bar_height))
 
     def openFile(self):
         options = QFileDialog.Options()
@@ -130,6 +181,23 @@ class MyMainWindow(QMainWindow):
         except Exception as e:
             self.statusBar.showMessage(f"Error: {e}")
 
+    def dragEnterEvent(self, a0, QDragEnterEvent=None):
+        if a0.mimeData().hasUrls():
+            a0.accept()
+        else:
+            a0.ignore()
+
+    def dropEvent(self, a0, QDropEvent=None):
+        for url in a0.mimeData().urls():
+            file_name = url.toLocalFile()
+            try:
+                with open(file_name, 'r') as file:
+                    self.mHisto.m_list = [int(line.strip()) for line in file.readlines()]
+                self.statusBar.showMessage("Histogram opened!")
+                self.update()
+            except Exception as e:
+                self.statusBar.showMessage(f"Error: {e}")
+
     def clearHistogram(self):
         self.mHisto.m_list = [0] * self.mHisto.m_size
         self.statusBar.showMessage("Histogram cleared!")
@@ -140,12 +208,25 @@ class MyMainWindow(QMainWindow):
         if color.isValid():
             self.mHisto.color = color
             self.statusBar.showMessage("Color changed!")
+
+            pixmap = QPixmap(16, 16)
+            pixmap.fill(color)
+
+            # Create a QIcon from the QPixmap
+            self.colorIcon = QIcon(pixmap)
+            self.colorAct.setIcon(self.colorIcon)
             self.update()
 
     def myExit(self):
         """ Slot associé à exitAct, instance de QAction"""
         self.statusBar.showMessage("Quit ...")
         QApplication.quit()
+
+    def keyReleaseEvent(self, a0, QKeyEvent=None):
+        if a0.key() == Qt.Key_R:
+            self.mHisto.set_random_values()
+            self.statusBar.showMessage("Random values set!")
+            self.update()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
