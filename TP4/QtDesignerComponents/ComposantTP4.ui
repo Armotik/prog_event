@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1369</width>
+    <height>921</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <widget class="QLabel" name="mLabel">
+   <property name="geometry">
+    <rect>
+     <x>120</x>
+     <y>120</y>
+     <width>640</width>
+     <height>480</height>
+    </rect>
+   </property>
+   <property name="autoFillBackground">
+    <bool>false</bool>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color: rgb(46, 204, 113);</string>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QWidget" name="horizontalLayoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>120</x>
+     <y>610</y>
+     <width>641</width>
+     <height>80</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout_2">
+    <item>
+     <widget class="QLineEdit" name="mLineEdit">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="autoFillBackground">
+       <bool>false</bool>
+      </property>
+      <property name="text">
+       <string>Chemin vers l'image chargée</string>
+      </property>
+      <property name="readOnly">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <spacer name="verticalSpacer">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <property name="sizeType">
+       <enum>QSizePolicy::Fixed</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>20</width>
+        <height>40</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item>
+     <widget class="QPushButton" name="mButtonBrowse">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="autoFillBackground">
+       <bool>false</bool>
+      </property>
+      <property name="text">
+       <string>...</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="verticalLayoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>790</x>
+     <y>340</y>
+     <width>160</width>
+     <height>80</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QPushButton" name="mButtonN">
+      <property name="text">
+       <string>Next</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="mButtonP">
+      <property name="text">
+       <string>Previous</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QPushButton" name="mAnimate">
+   <property name="geometry">
+    <rect>
+     <x>790</x>
+     <y>520</y>
+     <width>151</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>START</string>
+   </property>
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>mButtonBrowse</sender>
+   <signal>clicked()</signal>
+   <receiver>Form</receiver>
+   <slot>LoadFiles()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>712</x>
+     <y>648</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>820</x>
+     <y>649</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>mButtonN</sender>
+   <signal>clicked()</signal>
+   <receiver>Form</receiver>
+   <slot>Next()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>868</x>
+     <y>363</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1041</x>
+     <y>362</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>mButtonP</sender>
+   <signal>clicked()</signal>
+   <receiver>Form</receiver>
+   <slot>Previous()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>930</x>
+     <y>394</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1046</x>
+     <y>399</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>mAnimate</sender>
+   <signal>clicked()</signal>
+   <receiver>Form</receiver>
+   <slot>Animate()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>892</x>
+     <y>536</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1042</x>
+     <y>527</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>LoadFiles()</slot>
+  <slot>Next()</slot>
+  <slot>Previous()</slot>
+  <slot>Animate()</slot>
+ </slots>
+</ui>
